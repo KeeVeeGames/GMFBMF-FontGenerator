@@ -1,6 +1,11 @@
 {
   "resources": [
-    {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},"order":0,},
+    {"id":{"name":"obj_system","path":"objects/obj_system/obj_system.yy",},"order":0,},
+    {"id":{"name":"rm_main","path":"rooms/rm_main/rm_main.yy",},"order":0,},
+    {"id":{"name":"Fnt","path":"scripts/Fnt/Fnt.yy",},"order":0,},
+    {"id":{"name":"Inset","path":"scripts/Inset/Inset.yy",},"order":1,},
+    {"id":{"name":"GMFont","path":"scripts/GMFont/GMFont.yy",},"order":2,},
+    {"id":{"name":"json_minify","path":"scripts/json_minify/json_minify.yy",},"order":3,},
   ],
   "Options": [
     {"name":"Amazon Fire","path":"options/amazonfire/options_amazonfire.yy",},
@@ -22,7 +27,7 @@
     "children": [],
   },
   "RoomOrderNodes": [
-    {"roomId":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+    {"roomId":{"name":"rm_main","path":"rooms/rm_main/rm_main.yy",},},
   ],
   "Folders": [
     {"folderPath":"folders/Sprites.yy","order":1,"resourceVersion":"1.0","name":"Sprites","tags":[],"resourceType":"GMFolder",},
