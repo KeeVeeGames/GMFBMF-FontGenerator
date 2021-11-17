@@ -1,23 +1,27 @@
-function Fnt() constructor {
+function BMFont() constructor {
     name = "";
     face = "";
     size = 0;
     bold = false;
     italic = false;
     padding = new Inset(0, 0, 0, 0);
+    base = 0;
     
-    chars = [];             /// @is {FntChar[]}
-    kernings = [];          /// @is {FntKerning[]}
+    chars = [];             /// @is {BMFontChar[]}
+    kernings = [];          /// @is {BMFontKerning[]}
     
-    _parsingLine = "";
-    _parsingIndex = 1;
+    static _parsingLine = "";
+    static _parsingSeekPos = 1;
     
-    load = function(filename/*:string*/) {
+    static load = function(filename/*:string*/)/*->bool*/ {
         var file = file_text_open_read(filename);
+        
+        if (file == -1) return false;
         
         name = string_replace(filename_name(filename), ".fnt", "");
         
         _parsingLine = file_text_read_string(file);
+        _parsingSeekPos = 1;
         
         if (string_copy(_parsingLine, 1, 4) == "info") {
             face = _parseValue("face=\"", "\"");
@@ -30,7 +34,17 @@ function Fnt() constructor {
             padding.bottom = real(_parseValue(",", ","));
             padding.left = real(_parseValue(",", " "));
         } else {
-            throw InvalidFntFileException;
+            throw InvalidBMFontFileException;
+        }
+        
+        file_text_readln(file);
+        _parsingLine = file_text_read_string(file);
+        _parsingSeekPos = 1;
+        
+        if (string_copy(_parsingLine, 1, 6) == "common") {
+            base = real(_parseValue("base=", " "));
+        } else {
+            throw InvalidBMFontFileException;
         }
         
         file_text_readln(file);
@@ -41,7 +55,7 @@ function Fnt() constructor {
             if (string_copy(_parsingLine, 1, 5) == "chars") {
                 file_text_readln(file);
                 _parsingLine = file_text_read_string(file);
-                _parsingIndex = 1;
+                _parsingSeekPos = 1;
                 
                 while (string_copy(_parsingLine, 1, 4) == "char") {
                     var id_ = real(_parseValue("id=", " "));
@@ -49,31 +63,33 @@ function Fnt() constructor {
                     var y_ = real(_parseValue("y=", " "));
                     var width = real(_parseValue("width=", " "));
                     var height = real(_parseValue("height=", " "));
+                    var xoffset = real(_parseValue("xoffset=", " "));
+                    var yoffset = real(_parseValue("yoffset=", " "));
                     var xadvance = real(_parseValue("xadvance=", " "));
                     
-                    array_push(chars, new FntChar(id_, x_, y_, width, height, xadvance));
+                    array_push(chars, new BMFontChar(id_, x_, y_, width, height, xoffset, yoffset, xadvance));
                     
                     file_text_readln(file);
                     _parsingLine = file_text_read_string(file);
-                    _parsingIndex = 1;
+                    _parsingSeekPos = 1;
                 }
             }
             
             if (string_copy(_parsingLine, 1, 8) == "kernings") {
                 file_text_readln(file);
                 _parsingLine = file_text_read_string(file);
-                _parsingIndex = 1;
+                _parsingSeekPos = 1;
                 
                 while (string_copy(_parsingLine, 1, 7) == "kerning") {
                     var first = real(_parseValue("first=", " "));
                     var second = real(_parseValue("second=", " "));
                     var amount = real(_parseValue("amount=", " "));
                     
-                    array_push(kernings, new FntKerning(first, second, amount));
+                    array_push(kernings, new BMFontKerning(first, second, amount));
                     
                     file_text_readln(file);
                     _parsingLine = file_text_read_string(file);
-                    _parsingIndex = 1;
+                    _parsingSeekPos = 1;
                 }
             }
             
@@ -83,15 +99,15 @@ function Fnt() constructor {
         file_text_close(file);
         _parsingLine = "";
         
+        return true;
+        
         // show_debug_message(json_stringify(self));
     }
     
-    _parseValue = function(opening/*:string*/, closing/*:string*/)/*->string*/ {
-        _parsingIndex = string_pos_ext(opening, _parsingLine, _parsingIndex) + string_length(opening);
-        
-        var result = string_copy(_parsingLine, _parsingIndex, string_pos_ext(closing, _parsingLine, _parsingIndex) - _parsingIndex);
-        
-        _parsingIndex += string_length(result) - 1;
+    static _parseValue = function(opening/*:string*/, closing/*:string*/)/*->string*/ {
+        _parsingSeekPos = string_pos_ext(opening, _parsingLine, _parsingSeekPos) + string_length(opening);
+        var result = string_copy(_parsingLine, _parsingSeekPos, string_pos_ext(closing, _parsingLine, _parsingSeekPos) - _parsingSeekPos);
+        _parsingSeekPos += string_length(result) - 1;
         
         return result;
     }
@@ -102,23 +118,27 @@ function Fnt() constructor {
 /// @param {number} y
 /// @param {number} width
 /// @param {number} height
+/// @param {number} xoffset
+/// @param {number} yoffset
 /// @param {number} xadvance
-function FntChar(_id, _x, _y, _width, _height, _xadvance) constructor {
+function BMFontChar(_id, _x, _y, _width, _height, _xoffset, _yoffset, _xadvance) constructor {
     id = _id;                   /// @is {number}
     x = _x;                     /// @is {number}
     y = _y;                     /// @is {number}
     width = _width;             /// @is {number}
     height = _height;           /// @is {number}
+    xoffset = _xoffset;         /// @is {number}
+    yoffset = _yoffset;         /// @is {number}
     xadvance = _xadvance;       /// @is {number}
 }
 
 /// @param {number} first
 /// @param {number} second
 /// @param {number} amount
-function FntKerning(_first, _second, _amount) constructor {
+function BMFontKerning(_first, _second, _amount) constructor {
     first = _first;             /// @is {number}
     second = _second;           /// @is {number}
     amount = _amount;           /// @is {number}
 }
 
-#macro InvalidFntFileException "Invalid fnt file!"
+#macro InvalidBMFontFileException "Invalid fnt file!"
