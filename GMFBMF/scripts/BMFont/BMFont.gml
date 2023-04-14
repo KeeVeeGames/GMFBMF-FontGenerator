@@ -5,10 +5,13 @@ function BMFont() constructor {
     bold = false;
     italic = false;
     padding = new Inset(0, 0, 0, 0);
+    lineHeight = 0;
     base = 0;
     
     chars = [];             /// @is {BMFontChar[]}
     kernings = [];          /// @is {BMFontKerning[]}
+    
+    charsMap = {};
     
     static _parsingLine = "";
     static _parsingSeekPos = 1;
@@ -42,6 +45,7 @@ function BMFont() constructor {
         _parsingSeekPos = 1;
         
         if (string_copy(_parsingLine, 1, 6) == "common") {
+            lineHeight = real(_parseValue("lineHeight=", " "));
             base = real(_parseValue("base=", " "));
         } else {
             throw InvalidBMFontFileException;
@@ -68,6 +72,7 @@ function BMFont() constructor {
                     var xadvance = real(_parseValue("xadvance=", " "));
                     
                     array_push(chars, new BMFontChar(id_, x_, y_, width, height, xoffset, yoffset, xadvance));
+                    charsMap[$ string(id_)] = array_length(chars) - 1;
                     
                     file_text_readln(file);
                     _parsingLine = file_text_read_string(file);
@@ -83,7 +88,8 @@ function BMFont() constructor {
                 while (string_copy(_parsingLine, 1, 7) == "kerning") {
                     var first = real(_parseValue("first=", " "));
                     var second = real(_parseValue("second=", " "));
-                    var amount = real(_parseValue("amount=", " "));
+                    // var amount = real(_parseValue("amount=", " "));
+                    var amount = real(_parseValue("amount="));
                     
                     array_push(kernings, new BMFontKerning(first, second, amount));
                     
@@ -104,9 +110,14 @@ function BMFont() constructor {
         // show_debug_message(json_stringify(self));
     }
     
-    static _parseValue = function(opening/*:string*/, closing/*:string*/)/*->string*/ {
+    static _parseValue = function(opening/*:string*/, closing/*:string*/ = "")/*->string*/ {
         _parsingSeekPos = string_pos_ext(opening, _parsingLine, _parsingSeekPos) + string_length(opening);
-        var result = string_copy(_parsingLine, _parsingSeekPos, string_pos_ext(closing, _parsingLine, _parsingSeekPos) - _parsingSeekPos);
+        
+        if (closing != "") {
+            var result = string_copy(_parsingLine, _parsingSeekPos, string_pos_ext(closing, _parsingLine, _parsingSeekPos) - _parsingSeekPos);
+        } else {
+            var result = string_delete(_parsingLine, 1, _parsingSeekPos - 1);
+        }
         _parsingSeekPos += string_length(result) - 1;
         
         return result;

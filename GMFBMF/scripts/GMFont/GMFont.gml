@@ -56,6 +56,7 @@ function GMFont() constructor {
                 y : char.y + bmfont.padding.top - project.data.border.top,
                 w : char.width + project.data.border.left + project.data.border.right,
                 h : height + project.data.border.top + project.data.border.bottom,
+                // h : char.height + project.data.border.top + project.data.border.bottom,
                 character : char.id,
                 shift : char.xadvance + project.data.border.left + project.data.border.right,
                 offset : char.xoffset

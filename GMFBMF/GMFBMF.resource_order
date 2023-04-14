@@ -1,0 +1,12 @@
+{
+  "FolderOrderSettings": [],
+  "ResourceOrderSettings": [
+    {"name":"Inset","order":2,"path":"scripts/Inset/Inset.yy",},
+    {"name":"GMFont","order":1,"path":"scripts/GMFont/GMFont.yy",},
+    {"name":"json_minify","order":3,"path":"scripts/json_minify/json_minify.yy",},
+    {"name":"Project","order":4,"path":"scripts/Project/Project.yy",},
+    {"name":"buffer_write_slice","order":5,"path":"scripts/buffer_write_slice/buffer_write_slice.yy",},
+    {"name":"json_beautify","order":6,"path":"scripts/json_beautify/json_beautify.yy",},
+    {"name":"file_text","order":7,"path":"scripts/file_text/file_text.yy",},
+  ],
+}
